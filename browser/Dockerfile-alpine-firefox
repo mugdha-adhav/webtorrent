@@ -1,0 +1,21 @@
+FROM alpine:latest
+
+ENV USER ${USER:-firefox}
+ENV DIR ${DIR:-/home/${USER}}
+
+RUN \ 
+	adduser -h ${DIR} -s /sbin/nologin -u 1000 -D ${USER} && \
+	apk --update --no-cache add \
+		dbus-x11 \
+		dumb-init \
+		firefox-esr \
+    		ttf-freefont \
+    	&& rm  -rf /tmp/* /var/cache/apk/*
+
+COPY browser/base.html ${DIR}/base.html
+USER    ${USER}
+WORKDIR ${DIR}
+VOLUME  ${DIR}/downloads
+
+ENTRYPOINT ["/usr/bin/dumb-init", "/usr/bin/firefox"]
+CMD [ "/home/firefox/base.html" ]
